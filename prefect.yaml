@@ -1,0 +1,98 @@
+name: prefect_flows
+prefect-version: 3.0.0rc19
+
+build:
+
+push:
+- prefect_aws.deployments.steps.push_to_s3:
+    requires: prefect-aws>=0.3.4
+    bucket: 3commaprefectflows
+    folder: deployments
+    credentials: '{{ prefect.blocks.aws-credentials.s3-storage-credentials-prefect}}'
+
+pull:
+- prefect_aws.deployments.steps.pull_from_s3:
+    requires: prefect-aws>=0.3.4
+    bucket: 3commaprefectflows
+    folder: deployments
+    credentials: '{{ prefect.blocks.aws-credentials.s3-storage-credentials-prefect}}'
+- prefect.deployments.steps.pip_install_requirements:
+    requirements_file: requirements.txt
+
+deployments:
+- name: 01 Deploy Wallet Valuations
+  version:
+  tags: []
+  concurrency_limit:
+  description:
+  entrypoint: 01_save_wallet_valuations.py:get_wallet_valuaions
+  parameters: {}
+  work_pool:
+    name: default-agent-pool
+    work_queue_name:
+    job_variables: {}
+  enforce_parameter_schema: true
+  schedules:
+  - cron: 0 16 * * *
+    timezone: Europe/Lisbon
+    day_or: true
+    active: true
+    max_active_runs:
+    catchup: false
+- name: 02 Deploy Wallet Snapshots
+  version:
+  tags: []
+  concurrency_limit:
+  description:
+  entrypoint: 02_save_wallet_snapshots.py:get_wallet_snapshots
+  parameters: {}
+  work_pool:
+    name: default-agent-pool
+    work_queue_name:
+    job_variables: {}
+  enforce_parameter_schema: true
+  schedules:
+  - cron: 0 16 * * *
+    timezone: Europe/Lisbon
+    day_or: true
+    active: true
+    max_active_runs:
+    catchup: false
+- name: 05 Send Fund Prices
+  version:
+  tags: []
+  concurrency_limit:
+  description:
+  entrypoint: 05_send_fund_prices_bbg.py:send_fund_prices_email
+  parameters: {}
+  work_pool:
+    name: default-agent-pool
+    work_queue_name:
+    job_variables: {}
+  enforce_parameter_schema: true
+  schedules:
+  - cron: 0 16 * * *
+    timezone: Europe/Lisbon
+    day_or: true
+    active: true
+    max_active_runs:
+    catchup: false
+- name: 08 Save Benchmark Values DB
+  version:
+  tags: []
+  concurrency_limit:
+  description:
+  entrypoint: 08_save_benchmark_values.py:save_benchmark_values
+  parameters: {}
+  work_pool:
+    name: default-agent-pool
+    work_queue_name:
+    job_variables: {}
+  enforce_parameter_schema: true
+  schedules:
+  - cron: 0 16 * * *
+    timezone: Europe/Lisbon
+    day_or: true
+    active: true
+    max_active_runs:
+    catchup: false

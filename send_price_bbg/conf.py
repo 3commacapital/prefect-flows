@@ -1,5 +1,3 @@
-EMAIL_SENDER = "dduarte@3commafunds.com"
-EMAIL_PASSWORD = "xcn_CRK6vqr.vep.cnx"
 
 EMAIL_3CC = "ops@3commafunds.com"
 RECIPIENTS = [
